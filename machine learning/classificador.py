@@ -17,6 +17,8 @@ class Classificador():
        def classificar(self, dataset):
               X = dataset.loc[:, dataset.columns != 'target'] ## seleciona todos os atributos menos o target
               y = dataset['target'] ## seleciona o "rótulo" que será classificado
+              print(X.head(10))
+              print(y.head(10))
 
               random.seed(self._seed) ## gera seed
 
@@ -71,7 +73,7 @@ class SVM(Classificador):
 
        def get_classificador(self, X, y):
               print('-- SVM --')
-              model = SVC(random_state=self._seed)
+              model = SVC(random_state=self._seed, gamma = 'scale')
               return model
 
 class RandomForest(Classificador):
@@ -91,5 +93,5 @@ class LR(Classificador):
 
        def get_classificador(self, X, y):
               print('-- LOGISTIC REGRESSION --')
-              model = LogisticRegression(random_state=self._seed)
+              model = LogisticRegression(random_state=self._seed, gamma = 'sclae', n_estimators = 0.20)
               return model
