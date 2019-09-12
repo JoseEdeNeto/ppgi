@@ -1,47 +1,58 @@
-import numpy as np
+# https://docs.python.org/3/library/random.html
 import random
+
+# funções e operações para cálculos numéricos / https://docs.scipy.org/doc/numpy/reference/
+import numpy as np
+print("numpy version: {}". format(np.__version__))
+
+# manipulação e processamento de dados / https://pandas.pydata.org/pandas-docs/stable/
 import pandas as pd
+print("pandas version: {}". format(pd.__version__))
+
+# pré processamento de dados / https://scikit-learn.org/stable/modules/preprocessing.html
 import sklearn.preprocessing as preprocessing
+
+# ignore warnings
+import warnings
+warnings.filterwarnings('ignore')
+
+# Classificadores implementados em classificador.py
 import classificador
 
-path_file1 = 'DataSets/widgets/training-widget.tab'
+path_file1 = 'DataSets/widgets/5-test-widget-com-url.tab'
 file1 = pd.read_csv(path_file1, sep='\t')
 
-path_file2 = 'DataSets/widgets/test-widget.tab'
+path_file2 = 'DataSets/widgets/5-training-widget-com-url.tab'
 file2 = pd.read_csv(path_file2, sep='\t')
 
 frames = [file1, file2]
 dataset = pd.concat(frames)
 
-labels = ['Dropdown', 'Suggestionbox', 'Other'] # labels do dataset
-labelencoder = preprocessing.LabelEncoder() # codificador do sklearn
-labelencoder = labelencoder.fit(labels) # codifica as labels em valores de 0 até n-1 / 1 - other / 2 
-bc_labelencoded = labelencoder.transform(dataset.widgetClass) # faz a transformação da codificação para os indexes no dataset
-# 0 - dropdown
-# 1 - other
-# 2 - suggestionbox
+dataset = dataset[dataset.widgetClass != 'Discard']
 
-dataset['target'] = bc_labelencoded # salva na variável target o valor das classes codificadas
-dataset = dataset.drop(columns="widgetClass")
+dataset.loc[(dataset['widgetClass'] == 'Dropdown'), 'widgetClass'] = 0
+dataset.loc[(dataset['widgetClass'] == 'Other'), 'widgetClass'] = 1
+dataset.loc[(dataset['widgetClass'] == 'Suggestionbox'), 'widgetClass'] = 2
 
-labels = ['none', 'mouseover', 'keyup', 'click'] # labels do dataset
-labelencoder = preprocessing.LabelEncoder() # codificador do sklearn
-labelencoder = labelencoder.fit(labels) # codifica as labels em valores de 0 até n-1 / 1 - other / 2 
-bc_labelencoded = labelencoder.transform(dataset.event) # faz a transformação da codificação para os indexes no dataset
+dataset.rename(columns={'widgetClass': 'target'}, inplace=True)
 
-dataset.event = bc_labelencoded
+
+dataset.loc[(dataset['event'] == 'mouseover'), 'event'] = 0
+dataset.loc[(dataset['event'] == 'click'), 'event'] = 1
+dataset.loc[(dataset['event'] == 'none'), 'event'] = 2
+dataset.loc[(dataset['event'] == 'keyup'), 'event'] = 3
 
 decisionTree = classificador.DecisionTree()
-decisionTree.classificar(dataset)
+decisionTree.classificar(dataset, "GroupKfold")
 
 knn = classificador.KNN()
-knn.classificar(dataset)
+knn.classificar(dataset, "GroupKfold")
 
 svm = classificador.SVM()
-svm.classificar(dataset)
+svm.classificar(dataset, "GroupKfold")
 
 randomForest = classificador.RandomForest()
-randomForest.classificar(dataset)
+randomForest.classificar(dataset, "GroupKfold")
 
 logisticRegression = classificador.LR()
-logisticRegression.classificar(dataset)
+logisticRegression.classificar(dataset, "GroupKfold")
