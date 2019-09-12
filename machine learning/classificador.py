@@ -17,8 +17,6 @@ class Classificador():
        def classificar(self, dataset):
               X = dataset.loc[:, dataset.columns != 'target'] ## seleciona todos os atributos menos o target
               y = dataset['target'] ## seleciona o "rótulo" que será classificado
-              print(X.head(10))
-              print(y.head(10))
 
               random.seed(self._seed) ## gera seed
 
